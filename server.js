@@ -158,11 +158,11 @@ function simulateSeason(player, currentSeason) {
     Math.floor(82 - (Math.random() * injuryRisk * 20)); // 82 minus some games for minor injuries
   
   // Calculate base stats for the season
-  let ppg = ((shooting * 0.5) + (playmaking * 0.3) + (athleticism * 0.2)) * ageFactor;
-  let rpg = ((athleticism * 0.5) + (defense * 0.3)) * ageFactor;
-  let apg = ((playmaking * 0.7) + (basketball_iq * 0.3)) * ageFactor;
-  let spg = ((defense * 0.7) + (athleticism * 0.3)) * ageFactor * 0.2;
-  let bpg = ((defense * 0.8) + (athleticism * 0.2)) * ageFactor * 0.2;
+  let ppg = ((shooting * 0.4) + (playmaking * 0.3) + (athleticism * 0.2)) * ageFactor;
+  let rpg = ((athleticism * 0.4) + (defense * 0.3)) * ageFactor;
+  let apg = ((playmaking * 0.4) + (basketball_iq * 0.3)) * ageFactor;
+  let spg = ((defense * 0.4) + (athleticism * 0.3)) * ageFactor * 0.2;
+  let bpg = ((defense * 0.4) + (athleticism * 0.2)) * ageFactor * 0.2;
   
   // Add some randomness
   ppg = addRandomness(ppg, 0.15);
@@ -186,7 +186,7 @@ function simulateSeason(player, currentSeason) {
     shooting: Math.min(99, player.shooting + (Math.random() * skillImprovement)),
     playmaking: Math.min(99, player.playmaking + (Math.random() * skillImprovement)),
     defense: Math.min(99, player.defense + (Math.random() * skillImprovement)),
-    athleticism: Math.min(99, Math.max(60, player.athleticism - (age > 30 ? 1 : -Math.random() * skillImprovement))),
+    athleticism: Math.min(99, player.athleticism - (age > 30 ? 1 : -Math.random() * skillImprovement)),
     basketball_iq: Math.min(99, player.basketball_iq + (Math.random() * skillImprovement * 0.5)),
     work_ethic: player.work_ethic,
     injury_prone: Math.min(99, player.injury_prone + (hadMajorInjury ? 5 : 0)),
