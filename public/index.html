@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Career Tycoon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff6b00;
+            --secondary: #333;
+            --accent: #ff9d00;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .close-modal {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: var(--primary);
+        }
+        
+        /* Season Summary Modal Styles */
+        .season-summary-modal .modal-content {
+            max-width: 700px;
+        }
+        
+        .season-highlights {
+            margin: 20px 0;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .highlight-item {
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .highlight-item:last-child {
+            border-bottom: none;
+        }
+        
+        .attribute-improvement {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        
+        .attribute-points-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .attribute-points {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-left: 10px;
+        }
+        
+        .attribute-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .attribute-btn {
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .attribute-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .attribute-btn.disabled {
+            background-color: #eee;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .attribute-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .attribute-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .attribute-value {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .finish-improvement-btn {
+            margin-top: 20px;
+            background-color: var(--success);
+        }
+        
+        /* Leaderboard Table Styles */
+        #leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        #leaderboard-table th,
+        #leaderboard-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        #leaderboard-table th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+        
+        #leaderboard-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        #leaderboard-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .leaderboard-rank {
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .rank-1 {
+            color: gold;
+        }
+        
+        .rank-2 {
+            color: silver;
+        }
+        
+        .rank-3 {
+            color: #cd7f32; /* bronze */
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--accent);
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .header-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            margin-top: 15px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex-grow: 1;
+        }
+        
+        .slider-value {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+        
+        .accolades {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .accolade-badge {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            color: var(--dark);
+        }
+        
+        .accolade-badge.gold {
+            background-color: #ffd700;
+            color: #333;
+        }
+        
+        .accolade-badge.silver {
+            background-color: #c0c0c0;
+            color: #333;
+        }
+        
+        .accolade-badge.mvp {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .accolade-badge.champion {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .career-timeline {
+            margin-top: 30px;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .career-season {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 30px;
+        }
+        
+        .season-dot {
+            position: absolute;
+            left: -13px;
+            top: 0;
+            width: 25px;
+            height: 25px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .career-summary {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .legacy-meter {
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 15px;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .legacy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--info), var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.8s ease-in-out;
+        }
+        
+        .legacy-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+            z-index: 1;
+        }
+        
+        .goat-scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Rating badge styles */
+        .rating-badge {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-weight: bold;
+            text-align: center;
+            line-height: 35px;
+            margin-right: 5px;
+        }
+        
+        .rating-s, .rating-a-plus {
+            background-color: #ff5400;
+            color: white;
+        }
+        
+        .rating-a {
+            background-color: #ff9000;
+            color: white;
+        }
+        
+        .rating-b {
+            background-color: #bdff00;
+            color: #333;
+        }
+        
+        .rating-c {
+            background-color: #00ff9d;
+            color: #333;
+        }
+        
+        .rating-d {
+            background-color: #00c3ff;
+            color: white;
+        }
+        
+        .rating-f {
+            background-color: #8400ff;
+            color: white;
+        }
+        
+        /* Progress bar for attributes */
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .highlight {
+            color: var(--primary);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Basketball Career Tycoon</h1>
+        <p>Create your player, manage their career, and become the GOAT!</p>
+        <button id="view-leaderboard-btn" class="header-button">View GOAT Leaderboard</button>
+    </header>
+    
+    <div class="container">
+        <div id="player-creation" class="card">
+            <div class="card-header">Create Your Basketball Superstar</div>
+            <form id="player-form">
+                <div class="form-group">
+                    <label for="player-name">Player Name</label>
+                    <input type="text" id="player-name" placeholder="Enter player name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="player-position">Position</label>
+                    <select id="player-position" required>
+                        <option value="">Select position</option>
+                        <option value="PG">Point Guard (PG)</option>
+                        <option value="SG">Shooting Guard (SG)</option>
+                        <option value="SF">Small Forward (SF)</option>
+                        <option value="PF">Power Forward (PF)</option>
+                        <option value="C">Center (C)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="player-age">Starting Age</label>
+                    <select id="player-age" required>
+                        <option value="19">19 (Rookie)</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22 (College Graduate)</option>
+                    </select>
+                </div>
+                
+                <h3>Attribute Points</h3>
+                <p>You have <span id="points-remaining">50</span> points remaining to allocate across attributes.</p>
+                
+                <div class="form-group">
+                    <label for="shooting">Shooting <span id="shooting-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="shooting" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="playmaking">Playmaking <span id="playmaking-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="playmaking" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="defense">Defense <span id="defense-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="defense" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="athleticism">Athleticism <span id="athleticism-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="athleticism" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="basketball-iq">Basketball IQ <span id="basketball-iq-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="basketball-iq" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="work-ethic">Work Ethic <span id="work-ethic-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="work-ethic" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="injury-prone">Injury Resistance <span id="injury-prone-value" class="slider-value">20</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="injury-prone" class="slider attribute-slider" min="20" max="50" value="20">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" id="create-player-btn">Start Career</button>
+            </form>
+        </div>
+        
+        <div id="career-simulation" class="hidden">
+            <div class="tabs">
+                <div class="tab active" data-tab="current-season">Current Season</div>
+                <div class="tab" data-tab="career-stats">Career Stats</div>
+                <div class="tab" data-tab="legacy">Legacy & HOF</div>
+            </div>
+            
+            <div id="current-season-tab" class="tab-content active">
+                <div class="two-columns">
+                    <div class="card">
+                        <div class="card-header">
+                            <span id="player-display-name">Player Name</span> - Season <span id="current-season">1</span> (Age: <span id="player-age">19</span>)
+                        </div>
+                        
+                        <h3>Season Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-ppg">0.0</div>
+                                <div class="stat-label">PPG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-rpg">0.0</div>
+                                <div class="stat-label">RPG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-apg">0.0</div>
+                                <div class="stat-label">APG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-spg">0.0</div>
+                                <div class="stat-label">SPG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-bpg">0.0</div>
+                                <div class="stat-label">BPG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="stat-games">0</div>
+                                <div class="stat-label">Games</div>
+                            </div>
+                        </div>
+                        
+                        <h3>Team</h3>
+                        <p>Record: <span id="team-record">0-0</span></p>
+                        <p>Season Result: <span id="playoff-result">N/A</span></p>
+                        
+                        <div id="season-accolades">
+                            <h3>Accolades</h3>
+                            <div class="accolades" id="accolades-list">
+                                <!-- Accolades will be added here -->
+                            </div>
+                        </div>
+                        
+                        <div id="injury-report">
+                            <h3>Health Status</h3>
+                            <p id="injury-status">Healthy</p>
+                        </div>
+                        
+                        <button id="simulate-next-btn">Simulate Next Season</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">Player Attributes</div>
+                        
+                        <div class="attribute-container">
+                            <div class="form-group">
+                                <label>Shooting: <span id="display-shooting">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-shooting" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Playmaking: <span id="display-playmaking">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-playmaking" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Defense: <span id="display-defense">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-defense" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Athleticism: <span id="display-athleticism">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-athleticism" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Basketball IQ: <span id="display-basketball-iq">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-basketball-iq" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Work Ethic: <span id="display-work-ethic">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-work-ethic" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Injury Resistance: <span id="display-injury-prone">50</span></label>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="fill-injury-prone" style="width: 50%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="career-stats-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">Career Timeline</div>
+                    
+                    <div class="career-timeline">
+                        <div class="timeline-line"></div>
+                        <div id="career-seasons">
+                            <!-- Career seasons will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="legacy-tab" class="tab-content">
+                <div class="card">
+                    <div class="card-header">Legacy Status</div>
+                    
+                    <div class="career-summary">
+                        <h3>Career at a Glance</h3>
+                        <p>Seasons Played: <span id="total-seasons">0</span></p>
+                        <p>Career PPG: <span id="career-ppg">0.0</span></p>
+                        <p>Championships: <span id="career-championships">0</span></p>
+                        <p>MVP Awards: <span id="career-mvp">0</span></p>
+                        <p>All-Star Appearances: <span id="career-allstar">0</span></p>
+                        
+                        <h3>GOAT Meter</h3>
+                        <div class="legacy-meter">
+                            <div class="legacy-fill" id="legacy-meter-fill"></div>
+                            <div class="legacy-label">
+                                <span id="legacy-points">0</span> Legacy Points
+                            </div>
+                        </div>
+                        <div class="goat-scale">
+                            <span>Role Player</span>
+                            <span>Starter</span>
+                            <span>All-Star</span>
+                            <span>Superstar</span>
+                            <span>Legend</span>
+                            <span>GOAT</span>
+                        </div>
+                        
+                        <h3>Hall of Fame Status</h3>
+                        <p id="hof-status">Not yet eligible for Hall of Fame</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="retirement-screen" class="hidden">
+            <div class="card">
+                <div class="card-header">Career Complete</div>
+                
+                <h2>Congratulations on a Legendary Career!</h2>
+                <div id="final-career-summary">
+                    <!-- Final career summary will be added here -->
+                </div>
+                
+                <h3>Final GOAT Ranking</h3>
+                <div class="legacy-meter">
+                    <div class="legacy-fill" id="final-legacy-meter-fill"></div>
+                    <div class="legacy-label">
+                        <span id="final-legacy-points">0</span> Legacy Points
+                    </div>
+                </div>
+                
+<div id="leaderboard-status" class="hidden">
+                    <h3>GOAT Leaderboard Status</h3>
+                    <p>Your player ranked <span id="player-rank" class="highlight">0</span> out of <span id="total-players">0</span> all-time careers!</p>
+                </div>
+                
+                <button id="add-to-leaderboard-btn">Add to GOAT Leaderboard</button>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+        
+        <!-- GOAT Leaderboard Modal -->
+        <div id="leaderboard-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>GOAT Leaderboard</h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <table id="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Position</th>
+                                <th>Seasons</th>
+                                <th>PPG</th>
+                                <th>Championships</th>
+                                <th>MVPs</th>
+                                <th>Legacy Points</th>
+                                <th>GOAT Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Leaderboard entries will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Season Summary Modal -->
+        <div id="season-summary-modal" class="modal season-summary-modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Season <span id="summary-season">1</span> Summary</h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="season-performance">
+                        <h3>Season Performance</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="summary-ppg">0.0</div>
+                                <div class="stat-label">PPG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="summary-rpg">0.0</div>
+                                <div class="stat-label">RPG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="summary-apg">0.0</div>
+                                <div class="stat-label">APG</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="summary-team">0-0</div>
+                                <div class="stat-label">Record</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="season-highlights">
+                        <h3>Season Highlights</h3>
+                        <div id="highlight-list">
+                            <!-- Highlights will be added here -->
+                        </div>
+                    </div>
+                    
+                    <div class="attribute-improvement">
+                        <h3>Player Development</h3>
+                        <p>Invest in your player's development by allocating attribute points:</p>
+                        
+                        <div class="attribute-points-container">
+                            <span>Available Points:</span>
+                            <span id="attribute-points-remaining" class="attribute-points">5</span>
+                        </div>
+                        
+                        <div class="attribute-buttons" id="attribute-buttons">
+                            <!-- Attribute buttons will be added here -->
+                        </div>
+                        
+                        <button id="finish-improvement-btn" class="finish-improvement-btn">Complete Development</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Game state variables
+            let player = {
+                name: '',
+                position: '',
+                age: 19,
+                shooting: 20,
+                playmaking: 20,
+                defense: 20,
+                athleticism: 20,
+                basketball_iq: 20,
+                work_ethic: 20,
+                injury_prone: 20
+            };
+            
+            let careerStats = {
+                seasons: [],
+                totalLegacyPoints: 0,
+                championships: 0,
+                mvps: 0,
+                allStars: 0,
+                totalPoints: 0,
+                totalGames: 0,
+                finalsGames: 0,
+                allNbaFirstTeams: 0,
+                allNbaTeams: 0,
+                scoringTitles: 0
+            };
+            
+            let currentSeason = 1;
+            let attributePointsTotal = 50;
+            let attributePointsUsed = 0;
+            let seasonAttributePoints = 5; // Points to distribute after each season
+            
+            // DOM Element references
+            const pointsRemainingEl = document.getElementById('points-remaining');
+            const attributeSliders = document.querySelectorAll('.attribute-slider');
+            const playerForm = document.getElementById('player-form');
+            const playerCreationDiv = document.getElementById('player-creation');
+            const careerSimulationDiv = document.getElementById('career-simulation');
+            const retirementScreenDiv = document.getElementById('retirement-screen');
+            const simulateNextBtn = document.getElementById('simulate-next-btn');
+            const playAgainBtn = document.getElementById('play-again-btn');
+            const tabs = document.querySelectorAll('.tab');
+            
+            // Initialize attribute sliders
+            attributeSliders.forEach(slider => {
+                const valueDisplay = document.getElementById(`${slider.id}-value`);
+                const progressFill = slider.nextElementSibling.querySelector('.progress-fill');
+                
+                // Update display on slider change
+                slider.addEventListener('input', function() {
+                    const newValue = parseInt(slider.value);
+                    valueDisplay.textContent = newValue;
+                    progressFill.style.width = `${(newValue - 40) * 2}%`;
+                    
+                    // Calculate points used
+                    updatePointsUsed();
+                });
+            });
+            
+            // Calculate attribute points used
+            function updatePointsUsed() {
+                attributePointsUsed = 0;
+                attributeSliders.forEach(slider => {
+                    attributePointsUsed += parseInt(slider.value) - 20; // Base value is 20
+                });
+                
+                const pointsRemaining = attributePointsTotal - attributePointsUsed;
+                pointsRemainingEl.textContent = pointsRemaining;
+                
+                if (pointsRemaining < 0) {
+                    pointsRemainingEl.style.color = 'red';
+                    document.getElementById('create-player-btn').disabled = true;
+                } else {
+                    pointsRemainingEl.style.color = '';
+                    document.getElementById('create-player-btn').disabled = false;
+                }
+            }
+            
+            // Handle player creation
+            playerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate points
+                if (attributePointsTotal - attributePointsUsed < 0) {
+                    alert("You've used too many attribute points! Please adjust your attributes.");
+                    return;
+                }
+                
+                // Save player data
+                player.name = document.getElementById('player-name').value || "Anonymous Player";
+                player.position = document.getElementById('player-position').value;
+                player.age = parseInt(document.getElementById('player-age').value);
+                player.shooting = parseInt(document.getElementById('shooting').value);
+                player.playmaking = parseInt(document.getElementById('playmaking').value);
+                player.defense = parseInt(document.getElementById('defense').value);
+                player.athleticism = parseInt(document.getElementById('athleticism').value);
+                player.basketball_iq = parseInt(document.getElementById('basketball-iq').value);
+                player.work_ethic = parseInt(document.getElementById('work-ethic').value);
+                player.injury_prone = parseInt(document.getElementById('injury-prone').value);
+                
+                // Log player info for debugging
+                console.log("Initial player setup:", player);
+                
+                // Start career simulation
+                startCareerSimulation();
+            });
+            
+            // Start career simulation
+            function startCareerSimulation() {
+                // Hide player creation, show career simulation
+                playerCreationDiv.classList.add('hidden');
+                careerSimulationDiv.classList.remove('hidden');
+                
+                // Update player display
+                document.getElementById('player-display-name').textContent = player.name;
+                document.getElementById('player-age').textContent = player.age;
+                
+                // Update attributes display
+                updateAttributesDisplay();
+                
+                // Simulate first season
+                simulateSeason();
+            }
+            
+            // Update attributes display
+            function updateAttributesDisplay() {
+                document.getElementById('display-shooting').textContent = Math.round(player.shooting);
+                document.getElementById('fill-shooting').style.width = `${player.shooting}%`;
+                
+                document.getElementById('display-playmaking').textContent = Math.round(player.playmaking);
+                document.getElementById('fill-playmaking').style.width = `${player.playmaking}%`;
+                
+                document.getElementById('display-defense').textContent = Math.round(player.defense);
+                document.getElementById('fill-defense').style.width = `${player.defense}%`;
+                
+                document.getElementById('display-athleticism').textContent = Math.round(player.athleticism);
+                document.getElementById('fill-athleticism').style.width = `${player.athleticism}%`;
+                
+                document.getElementById('display-basketball-iq').textContent = Math.round(player.basketball_iq);
+                document.getElementById('fill-basketball-iq').style.width = `${player.basketball_iq}%`;
+                
+                document.getElementById('display-work-ethic').textContent = Math.round(player.work_ethic);
+                document.getElementById('fill-work-ethic').style.width = `${player.work_ethic}%`;
+                
+                document.getElementById('display-injury-prone').textContent = Math.round(player.injury_prone);
+                document.getElementById('fill-injury-prone').style.width = `${player.injury_prone}%`;
+            }
+            
+            // Simulate a season
+            function simulateSeason() {
+                // Update season display
+                document.getElementById('current-season').textContent = currentSeason;
+                
+                // API call to simulate season
+                fetch('/api/simulate-season', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        player: player,
+                        season: currentSeason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Log player information for debugging
+                    console.log("Current player before update:", player);
+                    
+                    // Update stats display
+                    document.getElementById('stat-ppg').textContent = data.stats.ppg;
+                    document.getElementById('stat-rpg').textContent = data.stats.rpg;
+                    document.getElementById('stat-apg').textContent = data.stats.apg;
+                    document.getElementById('stat-spg').textContent = data.stats.spg;
+                    document.getElementById('stat-bpg').textContent = data.stats.bpg;
+                    document.getElementById('stat-games').textContent = data.stats.gamesPlayed;
+                    
+                    // Update team record
+                    document.getElementById('team-record').textContent = `${data.teamRecord.wins}-${data.teamRecord.losses}`;
+                    
+                    // Update accolades
+                    const accoladesList = document.getElementById('accolades-list');
+                    accoladesList.innerHTML = '';
+                    data.accolades.forEach(accolade => {
+                        const badge = document.createElement('div');
+                        badge.className = 'accolade-badge';
+                        
+                        // Add special styling for important accolades
+                        if (accolade === 'MVP') {
+                            badge.classList.add('mvp');
+                        } else if (accolade === 'NBA Champion' || accolade === 'Finals MVP') {
+                            badge.classList.add('champion');
+                        } else if (accolade.includes('All-NBA First') || accolade.includes('Scoring Champion')) {
+                            badge.classList.add('gold');
+                        } else if (accolade.includes('All-NBA Second') || accolade.includes('All-Defensive')) {
+                            badge.classList.add('silver');
+                        }
+                        
+                        badge.textContent = accolade;
+                        accoladesList.appendChild(badge);
+                    });
+                    
+                    // Update playoff result
+                    let playoffResult = 'Missed Playoffs';
+                    for (const accolade of data.accolades) {
+                        if (accolade === 'NBA Champion') {
+                            playoffResult = 'NBA Champions';
+                            break;
+                        } else if (accolade === 'Finals Appearance') {
+                            playoffResult = 'Finals Runner-up';
+                        } else if (accolade === 'Conference Finals') {
+                            playoffResult = 'Conference Finals';
+                        } else if (accolade === 'Second Round Exit') {
+                            playoffResult = 'Second Round';
+                        } else if (accolade === 'First Round Exit') {
+                            playoffResult = 'First Round';
+                        }
+                    }
+                    document.getElementById('playoff-result').textContent = playoffResult;
+                    
+                    // Update injury status
+                    document.getElementById('injury-status').textContent = data.injuries;
+                    
+                    // Update player age
+                    document.getElementById('player-age').textContent = data.age;
+                    
+                    // Update player attributes with improvements
+                    player = data.newRatings;
+                    
+                    // Log player information after update
+                    console.log("Player after update:", player);
+                    
+                    updateAttributesDisplay();
+                    
+                    // Add season to career stats
+                    careerStats.seasons.push(data);
+                    careerStats.totalLegacyPoints += data.legacyPoints;
+                    
+                    // Count accolades
+                    if (data.accolades.includes('NBA Champion')) {
+                        careerStats.championships++;
+                    }
+                    if (data.accolades.includes('MVP')) {
+                        careerStats.mvps++;
+                    }
+                    if (data.accolades.includes('All-Star')) {
+                        careerStats.allStars++;
+                    }
+                    
+                    // Count special accolades
+                    if (data.accolades.includes('All-NBA First Team')) {
+                        careerStats.allNbaFirstTeams++;
+                    }
+                    if (data.accolades.includes('All-NBA First Team') || 
+                        data.accolades.includes('All-NBA Second Team') || 
+                        data.accolades.includes('All-NBA Third Team')) {
+                        careerStats.allNbaTeams++;
+                    }
+                    if (data.accolades.includes('Finals MVP')) {
+                        careerStats.finalsGames++;
+                    }
+                    if (data.accolades.includes('Scoring Champion')) {
+                        careerStats.scoringTitles++;
+                    }
+                    
+                    // Update career display
+                    updateCareerDisplay();
+                    
+                    // Update legacy display
+                    updateLegacyDisplay();
+                    
+                    // Add to career timeline
+                    addToCareerTimeline(data);
+                    
+                    // Show season summary modal
+                    showSeasonSummary(data);
+                    
+                    // Check for retirement
+                    if (data.age >= 40 || (data.age >= 35 && Math.random() > 0.7)) {
+                        endCareer();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during simulation. Please try again.');
+                });
+            }
+            
+            // Add a season to the career timeline
+            function addToCareerTimeline(seasonData) {
+                const timelineContainer = document.getElementById('career-seasons');
+                
+                const seasonDiv = document.createElement('div');
+                seasonDiv.className = 'career-season';
+                
+                const seasonDot = document.createElement('div');
+                seasonDot.className = 'season-dot';
+                seasonDot.textContent = seasonData.season;
+                
+                const seasonContent = document.createElement('div');
+                seasonContent.className = 'card';
+                
+                // Season header
+                const seasonHeader = document.createElement('div');
+                seasonHeader.className = 'card-header';
+                seasonHeader.textContent = `Season ${seasonData.season} (Age ${seasonData.age})`;
+                
+                // Season stats
+                const statsDiv = document.createElement('div');
+                statsDiv.innerHTML = `
+                    <p>Stats: ${seasonData.stats.ppg} PPG, ${seasonData.stats.rpg} RPG, ${seasonData.stats.apg} APG</p>
+                    <p>Team Record: ${seasonData.teamRecord.wins}-${seasonData.teamRecord.losses}</p>
+                `;
+                
+                // Accolades
+                const accoladesDiv = document.createElement('div');
+                accoladesDiv.innerHTML = '<h4>Accolades:</h4>';
+                
+                const accoladesList = document.createElement('div');
+                accoladesList.className = 'accolades';
+                
+                seasonData.accolades.forEach(accolade => {
+                    const badge = document.createElement('div');
+                    badge.className = 'accolade-badge';
+                    
+                    // Add special styling for important accolades
+                    if (accolade === 'MVP') {
+                        badge.classList.add('mvp');
+                    } else if (accolade === 'NBA Champion' || accolade === 'Finals MVP') {
+                        badge.classList.add('champion');
+                    } else if (accolade.includes('All-NBA First') || accolade.includes('Scoring Champion')) {
+                        badge.classList.add('gold');
+                    } else if (accolade.includes('All-NBA Second') || accolade.includes('All-Defensive')) {
+                        badge.classList.add('silver');
+                    }
+                    
+                    badge.textContent = accolade;
+                    accoladesList.appendChild(badge);
+                });
+                
+                accoladesDiv.appendChild(accoladesList);
+                
+                // Assemble season content
+                seasonContent.appendChild(seasonHeader);
+                seasonContent.appendChild(statsDiv);
+                seasonContent.appendChild(accoladesDiv);
+                
+                seasonDiv.appendChild(seasonDot);
+                seasonDiv.appendChild(seasonContent);
+                
+                // Add to timeline
+                timelineContainer.appendChild(seasonDiv);
+            }
+            
+            // Update career stats display
+            function updateCareerDisplay() {
+                // Update career totals in the Legacy tab
+                document.getElementById('total-seasons').textContent = careerStats.seasons.length;
+                document.getElementById('career-championships').textContent = careerStats.championships;
+                document.getElementById('career-mvp').textContent = careerStats.mvps;
+                document.getElementById('career-allstar').textContent = careerStats.allStars;
+                
+                // Calculate career PPG
+                const careerPPG = careerStats.totalPoints / careerStats.totalGames;
+                document.getElementById('career-ppg').textContent = careerPPG.toFixed(1);
+            }
+            
+            // Update legacy display
+            function updateLegacyDisplay() {
+                // Update legacy points
+                document.getElementById('legacy-points').textContent = careerStats.totalLegacyPoints;
+                
+                // Update legacy meter (scale to reasonable range, max around 2000-3000 points for GOAT status)
+                const legacyPercentage = Math.min(100, (careerStats.totalLegacyPoints / 2500) * 100);
+                document.getElementById('legacy-meter-fill').style.width = `${legacyPercentage}%`;
+                
+                // Update HOF status
+                const hofStatus = document.getElementById('hof-status');
+                if (careerStats.seasons.length < 10) {
+                    hofStatus.textContent = 'Not yet eligible for Hall of Fame (need 10+ seasons)';
+                } else if (careerStats.totalLegacyPoints > 800 || careerStats.championships > 2 || careerStats.mvps > 1) {
+                    hofStatus.textContent = 'Hall of Fame Worthy Career! 🏆';
+                    hofStatus.style.color = '#ffd700';
+                    hofStatus.style.fontWeight = 'bold';
+                } else {
+                    hofStatus.textContent = 'Currently not projected as a Hall of Famer';
+                }
+            }
+            
+            // End career and show retirement screen
+            function endCareer() {
+                careerSimulationDiv.classList.add('hidden');
+                retirementScreenDiv.classList.remove('hidden');
+                
+                // Update final legacy display
+                document.getElementById('final-legacy-points').textContent = careerStats.totalLegacyPoints;
+                
+                // Update final legacy meter
+                const legacyPercentage = Math.min(100, (careerStats.totalLegacyPoints / 2500) * 100);
+                document.getElementById('final-legacy-meter-fill').style.width = `${legacyPercentage}%`;
+                
+                // Log player information for debugging
+                console.log("Player at retirement:", player);
+                
+                // Create final career summary
+                const finalSummary = document.getElementById('final-career-summary');
+                
+                let careerRating = 'Role Player';
+                if (careerStats.totalLegacyPoints > 2000) {
+                    careerRating = 'GOAT Candidate';
+                } else if (careerStats.totalLegacyPoints > 1500) {
+                    careerRating = 'All-Time Great';
+                } else if (careerStats.totalLegacyPoints > 1000) {
+                    careerRating = 'Legend';
+                } else if (careerStats.totalLegacyPoints > 750) {
+                    careerRating = 'Superstar';
+                } else if (careerStats.totalLegacyPoints > 500) {
+                    careerRating = 'All-Star';
+                } else if (careerStats.totalLegacyPoints > 250) {
+                    careerRating = 'Starter';
+                }
+                
+                const careerPPG = careerStats.totalPoints / careerStats.totalGames;
+                
+                finalSummary.innerHTML = `
+                    <p>${player.name} retires after ${careerStats.seasons.length} seasons as a <span class="highlight">${careerRating}</span>.</p>
+                    
+                    <h3>Career Achievements</h3>
+                    <p>${careerStats.championships} NBA Championship${careerStats.championships !== 1 ? 's' : ''}</p>
+                    <p>${careerStats.mvps} MVP Award${careerStats.mvps !== 1 ? 's' : ''}</p>
+                    <p>${careerStats.allStars} All-Star Appearance${careerStats.allStars !== 1 ? 's' : ''}</p>
+                    <p>Career Averages: ${careerPPG.toFixed(1)} PPG</p>
+                    
+                    <h3>Legacy Assessment</h3>
+                    <p>${getCareerAssessment(careerStats.totalLegacyPoints, careerRating)}</p>
+                `;
+            }
+            
+            // Get career assessment based on legacy points
+            function getCareerAssessment(legacyPoints, careerRating) {
+                if (legacyPoints > 2000) {
+                    return `One of the greatest to ever play the game. ${player.name}'s career will be remembered for generations to come.`;
+                } else if (legacyPoints > 1500) {
+                    return `A truly remarkable career that fans and analysts will discuss for decades. ${player.name} has secured a place among basketball royalty.`;
+                } else if (legacyPoints > 1000) {
+                    return `A legendary career that will be remembered fondly. ${player.name} has left an indelible mark on the game of basketball.`;
+                } else if (legacyPoints > 750) {
+                    return `A superstar career with memorable moments and achievements. ${player.name} was one of the best players of their era.`;
+                } else if (legacyPoints > 500) {
+                    return `A solid career with multiple All-Star appearances. ${player.name} was respected throughout the league.`;
+                } else if (legacyPoints > 250) {
+                    return `A respectable career as a starter in the league. ${player.name} had some good moments but never reached the highest levels.`;
+                } else {
+                    return `A modest career as a role player. ${player.name} contributed to the game but didn't leave a significant mark in NBA history.`;
+                }
+            }
+            
+            // Show Season Summary Modal and handle attribute improvements
+            function showSeasonSummary(seasonData) {
+                // Get modal elements
+                const modal = document.getElementById('season-summary-modal');
+                const summarySeasonEl = document.getElementById('summary-season');
+                const summaryPpgEl = document.getElementById('summary-ppg');
+                const summaryRpgEl = document.getElementById('summary-rpg');
+                const summaryApgEl = document.getElementById('summary-apg');
+                const summaryTeamEl = document.getElementById('summary-team');
+                const highlightListEl = document.getElementById('highlight-list');
+                const attributeButtonsEl = document.getElementById('attribute-buttons');
+                const attributePointsEl = document.getElementById('attribute-points-remaining');
+                
+                // Update season summary data
+                summarySeasonEl.textContent = seasonData.season;
+                summaryPpgEl.textContent = seasonData.stats.ppg;
+                summaryRpgEl.textContent = seasonData.stats.rpg;
+                summaryApgEl.textContent = seasonData.stats.apg;
+                summaryTeamEl.textContent = `${seasonData.teamRecord.wins}-${seasonData.teamRecord.losses}`;
+                
+                // Generate highlights
+                highlightListEl.innerHTML = '';
+                
+                // Add playoff result highlight
+                let playoffResult = 'Missed the playoffs';
+                for (const accolade of seasonData.accolades) {
+                    if (accolade === 'NBA Champion') {
+                        playoffResult = 'Won the NBA Championship! 🏆';
+                        break;
+                    } else if (accolade === 'Finals Appearance') {
+                        playoffResult = 'Made it to the NBA Finals but lost';
+                    } else if (accolade === 'Conference Finals') {
+                        playoffResult = 'Made it to the Conference Finals';
+                    } else if (accolade === 'Second Round Exit') {
+                        playoffResult = 'Lost in the second round of playoffs';
+                    } else if (accolade === 'First Round Exit') {
+                        playoffResult = 'Lost in the first round of playoffs';
+                    }
+                }
+                addHighlight(highlightListEl, `Team finished ${seasonData.teamRecord.wins}-${seasonData.teamRecord.losses} and ${playoffResult}`);
+                
+                // Add statistical highlights
+                if (parseFloat(seasonData.stats.ppg) > 25) {
+                    addHighlight(highlightListEl, `Amazing scoring season with ${seasonData.stats.ppg} PPG`);
+                } else if (parseFloat(seasonData.stats.ppg) > 20) {
+                    addHighlight(highlightListEl, `Solid scoring with ${seasonData.stats.ppg} PPG`);
+                }
+                
+                if (parseFloat(seasonData.stats.rpg) > 10) {
+                    addHighlight(highlightListEl, `Dominated the boards with ${seasonData.stats.rpg} RPG`);
+                }
+                
+                if (parseFloat(seasonData.stats.apg) > 8) {
+                    addHighlight(highlightListEl, `Great playmaking with ${seasonData.stats.apg} APG`);
+                }
+                
+                // Add accolade highlights
+                for (const accolade of seasonData.accolades) {
+                    if (accolade === 'MVP') {
+                        addHighlight(highlightListEl, 'Won the MVP Award! 🏆', true);
+                    } else if (accolade === 'All-NBA First Team') {
+                        addHighlight(highlightListEl, 'Named to the All-NBA First Team', true);
+                    } else if (accolade === 'Scoring Champion') {
+                        addHighlight(highlightListEl, 'Led the league in scoring');
+                    } else if (accolade === 'All-Star') {
+                        addHighlight(highlightListEl, 'Selected to the All-Star Team');
+                    } else if (accolade === 'Finals MVP') {
+                        addHighlight(highlightListEl, 'Won Finals MVP! 🏆', true);
+                    }
+                }
+                
+                // Add injury highlight if applicable
+                if (seasonData.stats.gamesPlayed < 70) {
+                    addHighlight(highlightListEl, `Missed ${82 - seasonData.stats.gamesPlayed} games due to injuries`);
+                }
+                
+                // Set up attribute buttons for improvement
+                attributeButtonsEl.innerHTML = '';
+                attributePointsEl.textContent = seasonAttributePoints;
+                let remainingPoints = seasonAttributePoints;
+                
+                // Create attribute buttons
+                const attributes = [
+                    { id: 'shooting', name: 'Shooting', value: player.shooting },
+                    { id: 'playmaking', name: 'Playmaking', value: player.playmaking },
+                    { id: 'defense', name: 'Defense', value: player.defense },
+                    { id: 'athleticism', name: 'Athleticism', value: player.athleticism },
+                    { id: 'basketball_iq', name: 'Basketball IQ', value: player.basketball_iq },
+                    { id: 'work_ethic', name: 'Work Ethic', value: player.work_ethic },
+                    { id: 'injury_prone', name: 'Injury Resistance', value: player.injury_prone }
+                ];
+                
+                attributes.forEach(attr => {
+                    // Create attribute button
+                    const attrButton = document.createElement('div');
+                    attrButton.className = 'attribute-btn';
+                    attrButton.setAttribute('data-attribute', attr.id);
+                    attrButton.innerHTML = `
+                        <div class="attribute-name">${attr.name}</div>
+                        <div class="attribute-value">
+                            <span>${Math.round(attr.value)}</span>
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                    `;
+                    
+                    // Add click event
+                    attrButton.addEventListener('click', function() {
+                        if (remainingPoints > 0 && attr.value < 99) {
+                            // Increment attribute
+                            attr.value += 1;
+                            remainingPoints -= 1;
+                            
+                            // Update display
+                            attrButton.querySelector('.attribute-value span').textContent = Math.round(attr.value);
+                            attributePointsEl.textContent = remainingPoints;
+                            
+// Update player attribute temporarily (will be confirmed on modal close)
+                            player[attr.id] = attr.value;
+                        }
+                    });
+                    
+                    attributeButtonsEl.appendChild(attrButton);
+                });
+                
+                // Handle finish button
+                const finishBtn = document.getElementById('finish-improvement-btn');
+                finishBtn.addEventListener('click', function() {
+                    closeSeasonSummary();
+                });
+                
+                // Show modal
+                modal.classList.add('show');
+                
+                // Close button functionality
+                const closeButtons = modal.querySelectorAll('.close-modal');
+                closeButtons.forEach(btn => {
+                    btn.addEventListener('click', closeSeasonSummary);
+                });
+                
+                // Function to add highlight to the list
+                function addHighlight(container, text, important = false) {
+                    const highlight = document.createElement('div');
+                    highlight.className = 'highlight-item';
+                    highlight.textContent = text;
+                    
+                    if (important) {
+                        highlight.style.fontWeight = 'bold';
+                        highlight.style.color = 'var(--primary)';
+                    }
+                    
+                    container.appendChild(highlight);
+                }
+                
+                // Function to close the modal and apply changes
+                function closeSeasonSummary() {
+                    modal.classList.remove('show');
+                    
+                    // Apply attribute changes to player
+                    updateAttributesDisplay();
+                    
+                    // Remove event listeners to prevent duplicates
+                    finishBtn.removeEventListener('click', closeSeasonSummary);
+                    closeButtons.forEach(btn => {
+                        btn.removeEventListener('click', closeSeasonSummary);
+                    });
+                }
+            }
+            
+            // Show GOAT Leaderboard
+            function showLeaderboard() {
+                // Get the modal
+                const modal = document.getElementById('leaderboard-modal');
+                
+                // Show loading message
+                const leaderboardBody = document.getElementById('leaderboard-body');
+                leaderboardBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;">Loading leaderboard data...</td></tr>';
+                
+                // Show the modal first, then fetch data
+                modal.classList.add('show');
+                
+                // Get leaderboard data
+                fetch('/api/goat-leaderboard?limit=20')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch leaderboard data');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear leaderboard body
+                        leaderboardBody.innerHTML = '';
+                        
+                        if (data.length === 0) {
+                            leaderboardBody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;">No players in the leaderboard yet. Be the first!</td></tr>';
+                            return;
+                        }
+                        
+                        // Populate leaderboard table
+                        data.forEach((player, index) => {
+                            const row = document.createElement('tr');
+                            
+                            // Rank with special styling for top 3
+                            const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                            
+                            row.innerHTML = `
+                                <td class="leaderboard-rank ${rankClass}">${index + 1}</td>
+                                <td>${player.player_name}</td>
+                                <td>${player.position}</td>
+                                <td>${player.seasons_played}</td>
+                                <td>${player.career_ppg.toFixed(1)}</td>
+                                <td>${player.championships}</td>
+                                <td>${player.mvps}</td>
+                                <td>${player.legacy_points}</td>
+                                <td>${player.goat_rating}</td>
+                            `;
+                            
+                            leaderboardBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching leaderboard:', error);
+                        leaderboardBody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--danger);">
+                            Error loading leaderboard: ${error.message}. Please try again.
+                        </td></tr>`;
+                    });
+            }
+            
+            // Add player to leaderboard
+            function addPlayerToLeaderboard() {
+                // Calculate career PPG
+                const careerPPG = careerStats.totalPoints / careerStats.totalGames;
+                
+                // Determine GOAT rating
+                let goatRating = 'Role Player';
+                if (careerStats.totalLegacyPoints > 2000) {
+                    goatRating = 'GOAT Candidate';
+                } else if (careerStats.totalLegacyPoints > 1500) {
+                    goatRating = 'All-Time Great';
+                } else if (careerStats.totalLegacyPoints > 1000) {
+                    goatRating = 'Legend';
+                } else if (careerStats.totalLegacyPoints > 750) {
+                    goatRating = 'Superstar';
+                } else if (careerStats.totalLegacyPoints > 500) {
+                    goatRating = 'All-Star';
+                } else if (careerStats.totalLegacyPoints > 250) {
+                    goatRating = 'Starter';
+                }
+                
+                // Get the player name from the retirement screen if possible
+                const playerName = document.querySelector('#final-career-summary p:first-child')?.textContent?.split(' retires')[0] || 
+                                  ((player && player.name && typeof player.name === 'string') ? 
+                                    player.name.trim() || "Anonymous Player" : "Anonymous Player");
+                
+                console.log("Player name for leaderboard:", playerName);
+                
+                // Get position, default to "PG" if not available
+                const position = (player && player.position) ? player.position : 
+                                (document.getElementById('player-position') ? 
+                                 document.getElementById('player-position').value || "PG" : "PG");
+                
+                // Prepare player data for leaderboard
+                const playerData = {
+                    player_name: playerName,
+                    position: position,
+                    seasons_played: careerStats.seasons.length || 1,
+                    total_points: Math.round(careerStats.totalPoints) || 0,
+                    career_ppg: careerPPG || 0,
+                    championships: careerStats.championships || 0,
+                    mvps: careerStats.mvps || 0,
+                    all_stars: careerStats.allStars || 0,
+                    finals_mvps: careerStats.finalsGames || 0,
+                    all_nba_first_teams: careerStats.allNbaFirstTeams || 0,
+                    all_nba_teams: careerStats.allNbaTeams || 0,
+                    scoring_titles: careerStats.scoringTitles || 0,
+                    legacy_points: careerStats.totalLegacyPoints || 0,
+                    goat_rating: goatRating
+                };
+                
+                console.log("Sending player data to leaderboard:", playerData);
+                
+                // Submit player data to API
+                fetch('/api/goat-leaderboard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(playerData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Error adding player to leaderboard');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update UI with rank information
+                        document.getElementById('player-rank').textContent = data.rank;
+                        document.getElementById('total-players').textContent = data.totalPlayers;
+                        document.getElementById('leaderboard-status').classList.remove('hidden');
+                        
+                        // Disable add to leaderboard button to prevent duplicates
+                        document.getElementById('add-to-leaderboard-btn').disabled = true;
+                        document.getElementById('add-to-leaderboard-btn').textContent = 'Added to Leaderboard';
+                        
+                        // Show the leaderboard
+                        showLeaderboard();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding player to leaderboard:', error);
+                    alert('Failed to add player to leaderboard. Please try again.');
+                });
+            }
+            
+            // Handle simulate next season button
+            simulateNextBtn.addEventListener('click', function() {
+                currentSeason++;
+                simulateSeason();
+            });
+            
+            // Handle play again button
+            playAgainBtn.addEventListener('click', function() {
+                location.reload();
+            });
+            
+            // Event listener for Add to Leaderboard button
+            document.getElementById('add-to-leaderboard-btn').addEventListener('click', addPlayerToLeaderboard);
+            
+            // Event listener for View Leaderboard button in header
+            document.getElementById('view-leaderboard-btn').addEventListener('click', showLeaderboard);
+            
+            // Event listeners for leaderboard modal
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('leaderboard-modal').classList.remove('show');
+            });
+            
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                const leaderboardModal = document.getElementById('leaderboard-modal');
+                const seasonSummaryModal = document.getElementById('season-summary-modal');
+                
+                if (event.target === leaderboardModal) {
+                    leaderboardModal.classList.remove('show');
+                }
+                
+                if (event.target === seasonSummaryModal) {
+                    seasonSummaryModal.classList.remove('show');
+                    updateAttributesDisplay();
+                }
+            });
+            
+            // Handle tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show content for active tab
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
