@@ -116,6 +116,8 @@ app.post('/api/simulate-season', (req, res) => {
 function simulateSeason(player, currentSeason) {
   // Log player info for debugging
   console.log("Simulating season for player:", player);
+  //console.log("Player age from server:", data.age, "Type:", typeof data.age);
+  console.log("Player object age property:", player.age);
   
   // Get base stats from player
   const { shooting, playmaking, defense, athleticism, basketball_iq, work_ethic, injury_prone } = player;

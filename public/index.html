@@ -729,9 +729,9 @@
                 <div class="two-columns">
                     <div class="card">
                         <div class="card-header">
-                            <span id="player-display-name">Player Name</span> - Season <span id="current-season">1</span> (Age: <span id="player-age">??</span>)
+                            <span id="player-display-name">Player Name</span> - Season <span id="current-season">1</span>					
                         </div>
-                        
+
                         <h3>Season Stats</h3>
                         <div class="stats-grid">
                             <div class="stat-card">
@@ -1001,7 +1001,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Game state variables
-            let player = {
+			//changed from let player to now window.player so stats would be global
+            window.player = {
                 name: '',
                 position: '',
                 age: 19,
@@ -1013,6 +1014,22 @@
                 work_ethic: 10,
                 injury_prone: 10
             };
+			
+					// Create a function to update all player display elements
+			function updatePlayerDisplay() {
+				const playerName = document.getElementById('player-display-name');
+				const playerAge = document.getElementById('player-age');
+				
+				if (playerName) playerName.textContent = player.name;
+				if (playerAge) playerAge.textContent = player.age;
+				
+				console.log("Updated player display:", {
+					name: player.name,
+					age: player.age,
+					nameElement: playerName ? playerName.textContent : "not found",
+					ageElement: playerAge ? playerAge.textContent : "not found"
+				});
+			}
             
             let careerStats = {
                 seasons: [],
@@ -1060,6 +1077,7 @@
                 });
             });
             
+			
             // Calculate attribute points used
             function updatePointsUsed() {
                 attributePointsUsed = 0;
@@ -1115,12 +1133,15 @@
                 careerSimulationDiv.classList.remove('hidden');
                 
                 // Update player display
-                document.getElementById('player-display-name').textContent = player.name;
-                document.getElementById('player-age').textContent = player.age;
+				document.getElementById('player-display-name').textContent = player.name;
+				document.getElementById('player-age').textContent = player.age;
+				console.log("Start Player Age:", player.age); // Check if age is defined
+				console.log("Start Element:", document.getElementById('player-age')); // Check if element exists
+
                 
                 // Update attributes display
                 updateAttributesDisplay();
-                
+
                 // Simulate first season
                 simulateSeason();
             }
@@ -1224,21 +1245,40 @@
                     // Update injury status
                     document.getElementById('injury-status').textContent = data.injuries;
                     
+					// Call this after any updates to the player object
+					updatePlayerDisplay();
+					
+					                // Update player display
+				document.getElementById('player-display-name').textContent = player.name;
+				document.getElementById('player-age').textContent = player.age;
+				console.log("Start Player Age:", player.age); // Check if age is defined
+				console.log("Start Element:", document.getElementById('player-age')); // Check if element exists
+					
                     // Update player age
                     document.getElementById('player-age').textContent = data.age;
 					//document.getElementById('player-age').textContent = 'player-age' + 1;
                     
                     // Update player attributes with improvements
                     player = data.newRatings;
+					console.log("New player data from server:", data.newRatings);
+					console.log("New player age from server:", data.age);
                     
                     // Log player information after update
                     console.log("Player after update:", player);
-                    
+                    console.log("Player age update:", player.age);
+					console.log("Player dataage update:", data.age);
+					console.log("Player playerage update:", 'player-age');
+					
+					
                     updateAttributesDisplay();
                     
                     // Add season to career stats
                     careerStats.seasons.push(data);
                     careerStats.totalLegacyPoints += data.legacyPoints;
+					
+					// Update total points and games for PPG calculation
+					careerStats.totalPoints += parseFloat(data.stats.ppg) * parseFloat(data.stats.gamesPlayed);
+					careerStats.totalGames += parseFloat(data.stats.gamesPlayed);
                     
                     // Count accolades
                     if (data.accolades.includes('NBA Champion')) {
@@ -1406,7 +1446,9 @@
                 
                 // Log player information for debugging
                 console.log("Player at retirement:", player);
-                
+                console.log("Total career points:", careerStats.totalPoints);
+				console.log("Total career games:", careerStats.totalGames);
+				
                 // Create final career summary
                 const finalSummary = document.getElementById('final-career-summary');
                 
@@ -1425,7 +1467,11 @@
                     careerRating = 'Starter';
                 }
                 
-                const careerPPG = careerStats.totalPoints / careerStats.totalGames;
+                //const careerPPG = careerStats.totalPoints / careerStats.totalGames;
+				let careerPPG = 0;
+				if (careerStats.totalGames > 0 && typeof careerStats.totalPoints === 'number') {
+					careerPPG = careerStats.totalPoints / careerStats.totalGames;
+}
                 
                 finalSummary.innerHTML = `
                     <p>${player.name} retires after ${careerStats.seasons.length} seasons as a <span class="highlight">${careerRating}</span>.</p>
@@ -1834,6 +1880,8 @@
                 });
             });
         });
+
+
     </script>
 </body>
 </html>
