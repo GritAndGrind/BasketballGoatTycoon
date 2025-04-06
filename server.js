@@ -166,13 +166,13 @@ function simulateSeason(player, currentSeason) {
   //let apg = ((playmaking * 0.4) + (basketball_iq * 0.3)) * ageFactor;
   //let spg = ((defense * 0.4) + (athleticism * 0.3)) * ageFactor * 0.2;
   //let bpg = ((defense * 0.4) + (athleticism * 0.2)) * ageFactor * 0.2;
-  let ppg = ((shooting * 0.1) + (playmaking * 0.1) + (athleticism * 0.1)) * ageFactor;
+  let ppg = ((shooting * 0.2) + (playmaking * 0.1) + (athleticism * 0.1)) * ageFactor;
   let rpg = ((athleticism * 0.1) + (defense * 0.1)) * ageFactor;
   let apg = ((playmaking * 0.1) + (basketball_iq * 0.3)) * ageFactor;
   let spg = ((defense * 0.1) + (athleticism * 0.1)) * ageFactor * 0.1;
   let bpg = ((defense * 0.1) + (athleticism * 0.1)) * ageFactor * 0.1;
   // Add some randomness
-  ppg = addRandomness(ppg, 0.2);
+  ppg = addRandomness(ppg, 0.3);
   rpg = addRandomness(rpg, 0.2);
   apg = addRandomness(apg, 0.2);
   spg = addRandomness(spg, 0.2);
