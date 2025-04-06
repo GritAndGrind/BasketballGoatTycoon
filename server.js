@@ -135,7 +135,8 @@ function simulateSeason(player, currentSeason) {
     ageFactor = 1.0;
   } else if (age >= 33) {
     // Declining years
-    ageFactor = 1.0 - (age - 33) * 0.05;
+    //ageFactor = 1.0 - (age - 33) * 0.05;
+	ageFactor = 5.0 - (age - 33) * 0.05;
   }
   
   // Apply work ethic to slow down decline or speed up development
@@ -151,25 +152,31 @@ function simulateSeason(player, currentSeason) {
   const skillImprovement = Math.max(0, (work_ethic / 20) - (age / 10));
   
   // Calculate injury risk
-  const injuryRisk = (injury_prone / 100) * (1 + (age > 30 ? (age - 30) * 0.03 : 0));
-  const hadMajorInjury = Math.random() < injuryRisk * 0.2;
+  //const injuryRisk = (injury_prone / 100) * (1 + (age > 30 ? (age - 30) * 0.03 : 0));
+  //const hadMajorInjury = Math.random() < injuryRisk * 0.2;
+  const injuryRisk = (injury_prone / 100) * (1 + (age > 30 ? (age - 30) * 0.06 : 0));
+  const hadMajorInjury = Math.random() < injuryRisk * 1.0;
   const gamesPlayed = hadMajorInjury ? 
     Math.floor(Math.random() * 41) + 10 : // 10-50 games if major injury
     Math.floor(82 - (Math.random() * injuryRisk * 20)); // 82 minus some games for minor injuries
   
   // Calculate base stats for the season
-  let ppg = ((shooting * 0.4) + (playmaking * 0.3) + (athleticism * 0.2)) * ageFactor;
-  let rpg = ((athleticism * 0.4) + (defense * 0.3)) * ageFactor;
-  let apg = ((playmaking * 0.4) + (basketball_iq * 0.3)) * ageFactor;
-  let spg = ((defense * 0.4) + (athleticism * 0.3)) * ageFactor * 0.2;
-  let bpg = ((defense * 0.4) + (athleticism * 0.2)) * ageFactor * 0.2;
-  
+  //let ppg = ((shooting * 0.4) + (playmaking * 0.3) + (athleticism * 0.2)) * ageFactor;
+  //let rpg = ((athleticism * 0.4) + (defense * 0.3)) * ageFactor;
+  //let apg = ((playmaking * 0.4) + (basketball_iq * 0.3)) * ageFactor;
+  //let spg = ((defense * 0.4) + (athleticism * 0.3)) * ageFactor * 0.2;
+  //let bpg = ((defense * 0.4) + (athleticism * 0.2)) * ageFactor * 0.2;
+  let ppg = ((shooting * 0.1) + (playmaking * 0.1) + (athleticism * 0.1)) * ageFactor;
+  let rpg = ((athleticism * 0.1) + (defense * 0.1)) * ageFactor;
+  let apg = ((playmaking * 0.1) + (basketball_iq * 0.1)) * ageFactor;
+  let spg = ((defense * 0.1) + (athleticism * 0.1)) * ageFactor * 0.1;
+  let bpg = ((defense * 0.1) + (athleticism * 0.1)) * ageFactor * 0.1;
   // Add some randomness
-  ppg = addRandomness(ppg, 0.15);
-  rpg = addRandomness(rpg, 0.15);
-  apg = addRandomness(apg, 0.15);
-  spg = addRandomness(spg, 0.10);
-  bpg = addRandomness(bpg, 0.10);
+  ppg = addRandomness(ppg, 0.2);
+  rpg = addRandomness(rpg, 0.2);
+  apg = addRandomness(apg, 0.2);
+  spg = addRandomness(spg, 0.2);
+  bpg = addRandomness(bpg, 0.2);
   
   // Adjust stats based on games played (injury factor)
   const injuryFactor = gamesPlayed / 82;
