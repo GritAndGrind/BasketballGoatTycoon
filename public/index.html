@@ -729,7 +729,7 @@
                 <div class="two-columns">
                     <div class="card">
                         <div class="card-header">
-                            <span id="player-display-name">Player Name</span> - Season <span id="current-season">1</span> (Age: <span id="player-age">19</span>)
+                            <span id="player-display-name">Player Name</span> - Season <span id="current-season">1</span> (Age: <span id="player-age"></span>)
                         </div>
                         
                         <h3>Season Stats</h3>
@@ -1226,6 +1226,7 @@
                     
                     // Update player age
                     document.getElementById('player-age').textContent = data.age;
+					//document.getElementById('player-age').textContent = 'player-age' + 1;
                     
                     // Update player attributes with improvements
                     player = data.newRatings;
@@ -1307,6 +1308,7 @@
                 const seasonHeader = document.createElement('div');
                 seasonHeader.className = 'card-header';
                 seasonHeader.textContent = `Season ${seasonData.season} (Age ${seasonData.age})`;
+				//seasonHeader.textContent = `Season ${seasonData.season} (Age ${data.age})`;
                 
                 // Season stats
                 const statsDiv = document.createElement('div');

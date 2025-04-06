@@ -121,7 +121,7 @@ function simulateSeason(player, currentSeason) {
   const { shooting, playmaking, defense, athleticism, basketball_iq, work_ethic, injury_prone } = player;
   
   // Apply age factor (players peak around 27-32)
-  const age = player.age + currentSeason - 1;
+  const age = player.age;
   let ageFactor = 1.0;
   
   if (age < 22) {
