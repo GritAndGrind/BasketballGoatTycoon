@@ -136,7 +136,7 @@ function simulateSeason(player, currentSeason) {
   } else if (age >= 33) {
     // Declining years
     //ageFactor = 1.0 - (age - 33) * 0.05;
-	ageFactor = 5.0 - (age - 33) * 0.05;
+	ageFactor = 0.3 - (age - 33) * 0.05;
   }
   
   // Apply work ethic to slow down decline or speed up development
