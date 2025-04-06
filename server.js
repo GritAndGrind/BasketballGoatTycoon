@@ -272,7 +272,7 @@ function calculateAcrolades(ppg, rpg, apg, spg, bpg, teamRecord, gamesPlayed) {
     }
     
     // All-NBA Teams
-    if (ppg > 26 && teamRecord.wins > 45) {
+    if (ppg > 25 && teamRecord.wins > 45) {
       accolades.push("All-NBA First Team");
     } else if (ppg > 23 && teamRecord.wins > 40) {
       accolades.push("All-NBA Second Team");
@@ -288,7 +288,7 @@ function calculateAcrolades(ppg, rpg, apg, spg, bpg, teamRecord, gamesPlayed) {
     }
     
     // MVP Consideration
-    if (ppg > 27 && teamRecord.wins > 55 && (rpg > 7 || apg > 7)) {
+    if (ppg > 26 && teamRecord.wins > 55 && (rpg > 7 || apg > 7)) {
       accolades.push("MVP");
     } else if (ppg > 25 && teamRecord.wins > 50 && (rpg > 6 || apg > 6)) {
       accolades.push("MVP Candidate");
