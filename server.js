@@ -136,7 +136,7 @@ function simulateSeason(player, currentSeason) {
   } else if (age >= 33) {
     // Declining years
     //ageFactor = 1.0 - (age - 33) * 0.05;
-	ageFactor = 0.3 - (age - 33) * 0.05;
+	ageFactor = 0.6 - (age - 33) * 0.05;
   }
   
   // Apply work ethic to slow down decline or speed up development
@@ -168,7 +168,7 @@ function simulateSeason(player, currentSeason) {
   //let bpg = ((defense * 0.4) + (athleticism * 0.2)) * ageFactor * 0.2;
   let ppg = ((shooting * 0.1) + (playmaking * 0.1) + (athleticism * 0.1)) * ageFactor;
   let rpg = ((athleticism * 0.1) + (defense * 0.1)) * ageFactor;
-  let apg = ((playmaking * 0.1) + (basketball_iq * 0.1)) * ageFactor;
+  let apg = ((playmaking * 0.1) + (basketball_iq * 0.3)) * ageFactor;
   let spg = ((defense * 0.1) + (athleticism * 0.1)) * ageFactor * 0.1;
   let bpg = ((defense * 0.1) + (athleticism * 0.1)) * ageFactor * 0.1;
   // Add some randomness
