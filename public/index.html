@@ -1421,8 +1421,8 @@
                 
                 // Update HOF status
                 const hofStatus = document.getElementById('hof-status');
-                if (careerStats.seasons.length < 10) {
-                    hofStatus.textContent = 'Not yet eligible for Hall of Fame (need 10+ seasons)';
+                if (careerStats.seasons.length < 15) {
+                    hofStatus.textContent = 'Not yet eligible for Hall of Fame (need 15+ seasons)';
                 } else if (careerStats.totalLegacyPoints > 800 || careerStats.championships > 2 || careerStats.mvps > 1) {
                     hofStatus.textContent = 'Hall of Fame Worthy Career! 🏆';
                     hofStatus.style.color = '#ffd700';
