@@ -156,8 +156,8 @@ function simulateSeason(player, currentSeason) {
   // Calculate injury risk
   //const injuryRisk = (injury_prone / 100) * (1 + (age > 30 ? (age - 30) * 0.03 : 0));
   //const hadMajorInjury = Math.random() < injuryRisk * 0.2;
-  const injuryRisk = (injury_prone / 100) * (1 + (age > 30 ? (age - 30) * 0.06 : 0));
-  const hadMajorInjury = Math.random() < injuryRisk * 1.0;
+  const injuryRisk = (injury_prone / 100) * (1 + (age > 30 ? (age - 30) * 0.01 : 0));
+  const hadMajorInjury = Math.random() < injuryRisk * 0.1;
   const gamesPlayed = hadMajorInjury ? 
     Math.floor(Math.random() * 41) + 10 : // 10-50 games if major injury
     Math.floor(82 - (Math.random() * injuryRisk * 20)); // 82 minus some games for minor injuries
@@ -235,7 +235,7 @@ function addRandomness(value, factor) {
 function calculateTeamRecord(ppg, rpg, apg, spg, bpg, basketball_iq, seasonNumber) {
   // Base win contribution from the player
   //let winContribution = (ppg * 0.5 + rpg * 0.2 + apg * 0.3 + spg * 2 + bpg * 2 + basketball_iq * 0.3) / 25;
-  let winContribution = (ppg * 0.5 + rpg * 0.2 + apg * 0.3 + spg * 2 + bpg * 2 + basketball_iq * 0.3) / 50;
+  let winContribution = (ppg * 0.5 + rpg * 0.2 + apg * 0.3 + spg * 2 + bpg * 2 + basketball_iq * 0.3) / 10;
   
   // Cap win contribution and add randomness for team factors
   winContribution = Math.min(0.75, winContribution);
