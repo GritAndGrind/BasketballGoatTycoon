@@ -235,7 +235,7 @@ function addRandomness(value, factor) {
 function calculateTeamRecord(ppg, rpg, apg, spg, bpg, basketball_iq, seasonNumber) {
   // Base win contribution from the player
   //let winContribution = (ppg * 0.5 + rpg * 0.2 + apg * 0.3 + spg * 2 + bpg * 2 + basketball_iq * 0.3) / 25;
-  let winContribution = (ppg * 0.5 + rpg * 0.2 + apg * 0.3 + spg * 2 + bpg * 2 + basketball_iq * 0.3) / 10;
+  let winContribution = (ppg * 0.5 + rpg * 0.2 + apg * 0.3 + spg * 2 + bpg * 2 + basketball_iq * 0.3) / 90;
   
   // Cap win contribution and add randomness for team factors
   winContribution = Math.min(0.75, winContribution);
