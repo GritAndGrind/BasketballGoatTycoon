@@ -601,38 +601,6 @@
             color: var(--primary);
             font-weight: bold;
         }
-		#player-seasons-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-#player-seasons-table th,
-#player-seasons-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-#player-seasons-table th {
-  background-color: var(--primary);
-  color: white;
-  font-weight: bold;
-}
-
-.player-detail-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.player-detail-link:hover {
-  text-decoration: underline;
-}
-
-.modal-content {
-  max-width: 90%;
-}
     </style>
 </head>
 <body>
@@ -1029,57 +997,7 @@
             </div>
         </div>
     </div>
-    <!-- Player Detail Modal -->
-<div id="player-detail-modal" class="modal hidden">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="detail-player-name">Player Career</h2>
-            <span class="close-modal">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div class="career-overview card">
-                <div class="card-header">Career Overview</div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="detail-career-ppg">0.0</div>
-                        <div class="stat-label">Career PPG</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="detail-championships">0</div>
-                        <div class="stat-label">Championships</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="detail-mvps">0</div>
-                        <div class="stat-label">MVPs</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="detail-legacy-points">0</div>
-                        <div class="stat-label">Legacy Points</div>
-                    </div>
-                </div>
-            </div>
-            <h3>Season-by-Season Stats</h3>
-            <div id="player-seasons-container">
-                <table id="player-seasons-table">
-                    <thead>
-                        <tr>
-                            <th>Season</th>
-                            <th>Age</th>
-                            <th>PPG</th>
-                            <th>RPG</th>
-                            <th>APG</th>
-                            <th>Team Record</th>
-                            <th>Accolades</th>
-                        </tr>
-                    </thead>
-                    <tbody id="player-seasons-body">
-                        <!-- Season data will go here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Game state variables
@@ -1535,17 +1453,17 @@
                 const finalSummary = document.getElementById('final-career-summary');
                 
                 let careerRating = 'Role Player';
-                if (careerStats.totalLegacyPoints > 2700) {
+                if (careerStats.totalLegacyPoints > 2000) {
                     careerRating = 'GOAT Candidate';
-                } else if (careerStats.totalLegacyPoints > 2500) {
-                    careerRating = 'All-Time Great';
-                } else if (careerStats.totalLegacyPoints > 2200) {
-                    careerRating = 'Legend';
-                } else if (careerStats.totalLegacyPoints > 1800) {
-                    careerRating = 'Superstar';
                 } else if (careerStats.totalLegacyPoints > 1500) {
-                    careerRating = 'All-Star';
+                    careerRating = 'All-Time Great';
                 } else if (careerStats.totalLegacyPoints > 1000) {
+                    careerRating = 'Legend';
+                } else if (careerStats.totalLegacyPoints > 750) {
+                    careerRating = 'Superstar';
+                } else if (careerStats.totalLegacyPoints > 500) {
+                    careerRating = 'All-Star';
+                } else if (careerStats.totalLegacyPoints > 250) {
                     careerRating = 'Starter';
                 }
                 
@@ -1571,17 +1489,17 @@
             
             // Get career assessment based on legacy points
             function getCareerAssessment(legacyPoints, careerRating) {
-                if (legacyPoints > 2700) {
+                if (legacyPoints > 2000) {
                     return `One of the greatest to ever play the game. ${player.name}'s career will be remembered for generations to come.`;
-                } else if (legacyPoints > 2500) {
-                    return `A truly remarkable career that fans and analysts will discuss for decades. ${player.name} has secured a place among basketball royalty.`;
-                } else if (legacyPoints > 2200) {
-                    return `A legendary career that will be remembered fondly. ${player.name} has left an indelible mark on the game of basketball.`;
-                } else if (legacyPoints > 1800) {
-                    return `A superstar career with memorable moments and achievements. ${player.name} was one of the best players of their era.`;
                 } else if (legacyPoints > 1500) {
-                    return `A solid career with multiple All-Star appearances. ${player.name} was respected throughout the league.`;
+                    return `A truly remarkable career that fans and analysts will discuss for decades. ${player.name} has secured a place among basketball royalty.`;
                 } else if (legacyPoints > 1000) {
+                    return `A legendary career that will be remembered fondly. ${player.name} has left an indelible mark on the game of basketball.`;
+                } else if (legacyPoints > 750) {
+                    return `A superstar career with memorable moments and achievements. ${player.name} was one of the best players of their era.`;
+                } else if (legacyPoints > 500) {
+                    return `A solid career with multiple All-Star appearances. ${player.name} was respected throughout the league.`;
+                } else if (legacyPoints > 250) {
                     return `A respectable career as a starter in the league. ${player.name} had some good moments but never reached the highest levels.`;
                 } else {
                     return `A modest career as a role player. ${player.name} contributed to the game but didn't leave a significant mark in NBA history.`;
@@ -1769,7 +1687,7 @@
                 modal.classList.add('show');
                 
                 // Get leaderboard data
-                fetch('/api/goat-leaderboard?limit=50')
+                fetch('/api/goat-leaderboard?limit=20')
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Failed to fetch leaderboard data');
@@ -1792,19 +1710,18 @@
                             // Rank with special styling for top 3
                             const rankClass = index < 3 ? `rank-${index + 1}` : '';
                             
-					// Modify the leaderboard player display code
-					row.innerHTML = `
-						<td class="leaderboard-rank ${rankClass}">${index + 1}</td>
-						<td><a href="#" class="player-detail-link" data-player-id="${player.id}">${player.player_name}</a></td>
-						<td>${player.position}</td>
-						<td>${player.seasons_played}</td>
-						<td>${player.career_ppg.toFixed(1)}</td>
-						<td>${player.championships}</td>
-						<td>${player.mvps}</td>
-						<td>${player.legacy_points}</td>
-						<td>${player.goat_rating}</td>
-					`;
-		 
+                            row.innerHTML = `
+                                <td class="leaderboard-rank ${rankClass}">${index + 1}</td>
+                                <td>${player.player_name}</td>
+                                <td>${player.position}</td>
+                                <td>${player.seasons_played}</td>
+                                <td>${player.career_ppg.toFixed(1)}</td>
+                                <td>${player.championships}</td>
+                                <td>${player.mvps}</td>
+                                <td>${player.legacy_points}</td>
+                                <td>${player.goat_rating}</td>
+                            `;
+                            
                             leaderboardBody.appendChild(row);
                         });
                     })
@@ -1912,99 +1829,6 @@
                 simulateSeason();
             });
             
-			// Add event delegation for player detail links
-document.addEventListener('click', function(event) {
-  if (event.target.classList.contains('player-detail-link')) {
-    event.preventDefault();
-    
-    const playerId = event.target.getAttribute('data-player-id');
-    showPlayerDetail(playerId);
-  }
-});
-
-// Function to show player detail
-function showPlayerDetail(playerId) {
-  // Show loading state
-  const playerDetailModal = document.getElementById('player-detail-modal');
-  const seasonsBody = document.getElementById('player-seasons-body');
-  
-  document.getElementById('detail-player-name').textContent = 'Loading player data...';
-  seasonsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Loading player seasons...</td></tr>';
-  
-  playerDetailModal.classList.add('show');
-  
-  // Fetch player data
-  fetch(`/api/player/${playerId}`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch player data');
-      }
-      return response.json();
-    })
-    .then(data => {
-      // Update player overview
-      document.getElementById('detail-player-name').textContent = data.player.player_name;
-      document.getElementById('detail-career-ppg').textContent = data.player.career_ppg.toFixed(1);
-      document.getElementById('detail-championships').textContent = data.player.championships;
-      document.getElementById('detail-mvps').textContent = data.player.mvps;
-      document.getElementById('detail-legacy-points').textContent = data.player.legacy_points;
-      
-      // Update seasons table
-      seasonsBody.innerHTML = '';
-      
-      if (data.seasons.length === 0) {
-        seasonsBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No season data available</td></tr>';
-        return;
-      }
-      
-      data.seasons.forEach(season => {
-        const row = document.createElement('tr');
-        
-        // Create accolades badges
-        const accoladesBadges = season.accolades.map(accolade => {
-          let badgeClass = 'accolade-badge';
-          
-          if (accolade === 'MVP') {
-            badgeClass += ' mvp';
-          } else if (accolade === 'NBA Champion' || accolade === 'Finals MVP') {
-            badgeClass += ' champion';
-          } else if (accolade.includes('All-NBA First') || accolade.includes('Scoring Champion')) {
-            badgeClass += ' gold';
-          }
-          
-          return `<span class="${badgeClass}">${accolade}</span>`;
-        }).join(' ');
-        
-        row.innerHTML = `
-          <td>${season.season}</td>
-          <td>${season.age}</td>
-          <td>${season.ppg}</td>
-          <td>${season.rpg}</td>
-          <td>${season.apg}</td>
-          <td>${season.team_record}</td>
-          <td>${accoladesBadges}</td>
-        `;
-        
-        seasonsBody.appendChild(row);
-      });
-    })
-    .catch(error => {
-      console.error('Error fetching player detail:', error);
-      document.getElementById('detail-player-name').textContent = 'Error loading player';
-      seasonsBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);">
-        Error loading player data: ${error.message}</td></tr>`;
-    });
-}
-
-// Close player detail modal
-document.querySelector('#player-detail-modal .close-modal').addEventListener('click', function() {
-  document.getElementById('player-detail-modal').classList.remove('show');
-});
-			
-			
-			
-			
-			
             // Handle play again button
             playAgainBtn.addEventListener('click', function() {
                 location.reload();

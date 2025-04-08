@@ -3,41 +3,6 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// In db.js
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
-
-// Ensure the data directory exists
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir);
-}
-
-// Connect to SQLite database
-const dbPath = path.join(dataDir, 'basketball_tycoon.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error connecting to database:', err.message);
-    } else {
-        console.log('Connected to the basketball_tycoon database.');
-        // Initialize database tables
-        initializeDatabase();
-    }
-});
-
-// Initialize database tables
-function initializeDatabase() {
-    // Your initialization code here
-}
-
-// Export the database connection and functions
-module.exports = {
-    db,
-    // Other functions you want to export
-};
-
-
-
 // Import database functions from db.js
 const { 
     addPlayerToLeaderboard, 
@@ -45,7 +10,6 @@ const {
     getPlayerRank, 
     getTotalPlayerCount 
 } = require('./db');
-
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -69,148 +33,6 @@ app.get('/api/goat-leaderboard', async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve leaderboard' });
   }
 });
-
-// API endpoint to get player details by ID
-app.get('/api/player/:id', async (req, res) => {
-  try {
-    const playerId = req.params.id;
-    
-    // Get player details from existing table
-    const playerDetails = await getPlayerById(playerId);
-    
-    // Generate season data based on career stats
-    const playerSeasons = generatePlayerSeasons(playerDetails);
-    
-    res.json({
-      player: playerDetails,
-      seasons: playerSeasons
-    });
-  } catch (error) {
-    console.error('Error fetching player details:', error);
-    res.status(500).json({ error: 'Failed to retrieve player details' });
-  }
-});
-
-// Function to get player by ID (using existing table)
-function getPlayerById(id) {
-  return new Promise((resolve, reject) => {
-    const query = 'SELECT * FROM goat_players WHERE id = ?';
-    
-    db.get(query, [id], (err, row) => {
-      if (err) {
-        reject(err);
-      } else if (!row) {
-        reject(new Error('Player not found'));
-      } else {
-        resolve(row);
-      }
-    });
-  });
-}
-
-// Generate realistic season data based on career totals
-function generatePlayerSeasons(player) {
-  const seasons = [];
-  const numSeasons = player.seasons_played;
-  
-  // Calculate average stats
-  const avgPPG = player.career_ppg;
-  
-  // Distribute championships and MVPs across seasons
-  const championshipSeasons = getRandomSeasons(numSeasons, player.championships);
-  const mvpSeasons = getRandomSeasons(numSeasons, player.mvps);
-  const allStarSeasons = getRandomSeasons(numSeasons, player.all_stars);
-  const scoringTitleSeasons = getRandomSeasons(numSeasons, player.scoring_titles);
-  
-  // Create a realistic career arc
-  for (let i = 1; i <= numSeasons; i++) {
-    // Age calculation
-    const startingAge = 21;  // Assume most start around 21
-    const age = startingAge + (i - 1);
-    
-    // Career progression factors
-    let seasonFactor;
-    if (i < numSeasons * 0.2) {
-      // Early career (improving)
-      seasonFactor = 0.7 + (i / numSeasons) * 0.5;
-    } else if (i < numSeasons * 0.7) {
-      // Prime (peak performance)
-      seasonFactor = 1.1;
-    } else {
-      // Late career (declining)
-      const lateCareerProgress = (i - numSeasons * 0.7) / (numSeasons * 0.3);
-      seasonFactor = 1.1 - lateCareerProgress * 0.4;
-    }
-    
-    // Calculate season stats with some randomness
-    const ppg = (avgPPG * seasonFactor * (0.9 + Math.random() * 0.2)).toFixed(1);
-    const rpg = (5 + Math.random() * 5).toFixed(1);
-    const apg = (3 + Math.random() * 5).toFixed(1);
-    
-    // Determine accolades for this season
-    const accolades = [];
-    if (championshipSeasons.includes(i)) accolades.push("NBA Champion");
-    if (mvpSeasons.includes(i)) accolades.push("MVP");
-    if (allStarSeasons.includes(i)) accolades.push("All-Star");
-    if (scoringTitleSeasons.includes(i)) accolades.push("Scoring Champion");
-    
-    // Random team record, better in years with accolades
-    const baseWins = 41; // .500 record
-    const accoladeBonus = accolades.length * 5;
-    const randomFactor = Math.floor(Math.random() * 10) - 5;
-    const wins = Math.min(70, Math.max(20, baseWins + accoladeBonus + randomFactor));
-    const losses = 82 - wins;
-    
-    seasons.push({
-      season: i,
-      age: age,
-      ppg: ppg,
-      rpg: rpg,
-      apg: apg,
-      team_record: `${wins}-${losses}`,
-      accolades: accolades
-    });
-  }
-  
-  return seasons;
-}
-
-// Helper to distribute achievements across random seasons
-function getRandomSeasons(totalSeasons, count) {
-  const seasons = [];
-  
-  // Can't have more achievements than seasons
-  count = Math.min(count, totalSeasons);
-  
-  while (seasons.length < count) {
-    // Bias toward middle seasons (prime years)
-    const middleSeason = Math.floor(totalSeasons / 2);
-    const randomOffset = Math.floor(Math.random() * totalSeasons);
-    let season = Math.min(totalSeasons, Math.max(1, middleSeason + (randomOffset - totalSeasons/3)));
-    
-    // Ensure no duplicates
-    if (!seasons.includes(season)) {
-      seasons.push(season);
-    }
-  }
-  
-  return seasons;
-}
-
-function generateRandomAccolades() {
-  const allAccolades = ['All-Star', 'All-NBA First Team', 'MVP', 'NBA Champion', 'Finals MVP', 'Scoring Champion'];
-  const numAccolades = Math.floor(Math.random() * 3);
-  const accolades = [];
-  
-  for (let i = 0; i < numAccolades; i++) {
-    const idx = Math.floor(Math.random() * allAccolades.length);
-    if (!accolades.includes(allAccolades[idx])) {
-      accolades.push(allAccolades[idx]);
-    }
-  }
-  
-  return accolades;
-}
 
 // API endpoint to add player to GOAT leaderboard
 app.post('/api/goat-leaderboard', async (req, res) => {
